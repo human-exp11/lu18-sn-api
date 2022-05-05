@@ -39,7 +39,7 @@ THEN I am able to successfully create and delete reactions to thoughts and add a
 
 ## Walkthrough Video
 
-* [Video Link]
+* [Video Link](https://www.awesomescreenshot.com/video/8742327?key=bd607fd47ef8d4292f816369314509b4)
 
 ---
 
