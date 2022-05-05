@@ -3,37 +3,24 @@ const { User, Thought } = require("../models");
 const thoughtController = {
   //get all thoughts
   getAllThoughts(req, res) {
-    Thought.find({})
-      .populate({
-        path: "reactions",
-        select: "-__v",
-      })
-      .select("-__v")
-      .sort({ _id: -1 })
-      .then((dbThoughtData) => res.json(dbThoughtData))
-      .catch((err) => {
-        console.log(err);
-        res.sendStatus(400);
-      });
+  Thought.find({})
+  .then(thoughtData => res.json(thoughtData))
+  .catch(err => {
+      console.log(err);
+      res.status(400).json(err);
+  })
   },
-
   //get a thought by id
   getThoughtByID({ params }, res) {
-    Thought.findOne({ _id: params.id })
-      .populate({
-        path: "reactions",
-        select: "-__v",
-      })
-      .select("-__v")
-      .sort({ _id: -1 })
-      .then((dbThoughtData) => {
-        if (!dbThoughtData) {
+    Thought.findOne({ _id: params.thoughtId})
+      .then((thoughtData) => {
+        if (!thoughtData) {
           res
             .status(404)
             .json({ message: "This ID is not associated with any thoughts." });
           return;
         }
-        res.json(dbThoughtData);
+        res.json(thoughtData);
       })
       .catch((err) => {
         console.log(err);
@@ -45,86 +32,69 @@ const thoughtController = {
     Thought.create(body)
       .then(({ _id }) => {
         return User.findByIdAndUpdate(
-          { _id: body.userID },
+          { _id: params.userId },
           { $push: { thoughts: _id } },
           { new: true }
         );
       })
-      .then((dbThoughtData) => {
-        if (!dbThoughtData) {
+      .then((thoughtData) => {
+        if (!thoughtData) {
           res
             .status(404)
             .json({ message: "This ID is not associated with any users." });
           return;
         }
-        res.json(dbThoughtData);
+        res.json(thoughtData);
       })
       .catch((err) => res.json(err));
   },
 
   //update a thought
   updateThought({ params, body }, res) {
-    Thought.findByIdAndUpdate({ _id: params.id }, body, {
+    Thought.findByIdAndUpdate({ _id: params.thoughtId }, body, {
       new: true,
       runValidators: true,
     })
-      .then((dbThoughtData) => {
-        if (!dbThoughtData) {
+      .then((thoughtData) => {
+        if (!thoughtData) {
           res
             .status(404)
             .json({ message: "This ID is not associated with any thoughts." });
           return;
         }
-        res.json(dbThoughtData);
+        res.json(thoughtData);
       })
       .catch((err) => res.json(err));
   },
 
   //delete a thought
   deleteThought({ params }, res) {
-    Thought.findByIdAndDelete({ _id: params.id })
-      .then((dbThoughtData) => {
-        if (!dbThoughtData) {
-          res
-            .status(404)
-            .json({ message: "This ID is not associated with any thoughts." });
-          return;
-        }
-        return User.findByIdAndUpdate(
-          { _id: parmas.userId },
-          { $pull: { thoughts: params.Id } },
-          { new: true }
-        );
-      })
-      .then((dbUserData) => {
-        if (!dbUserData) {
-          res
-            .status(404)
-            .json({ message: "This ID is not associated with any users." });
-          return;
-        }
-        res.json(dbUserData);
-      })
-      .catch((err) => res.json(err));
-  },
+    Thought.findByIdAndDelete({ _id: params.thoughtId }, { runValidators: true, new: true })
+        .then(thoughtData => {
+            if (!thoughtData) {
+                res.status(404).json({ message: 'This ID is not associated with any thoughts.' });
+                return;
+            }
+            res.json(thoughtData);
+        })
+        .catch(err => res.json(err));
+},
 
   //create a reaction
   createReaction({ params, body }, res) {
     Thought.findByIdAndUpdate(
-      { _id: params.thoughtID },
+      { _id: params.thoughtId },
       { $push: { reactions: body } },
       { new: true, runValidators: true }
     )
-      .populate({ path: "reactions", select: "-__v" })
-      .select("-__v")
-      .then((dbThoughtData) => {
-        if (!dbThoughtData) {
+      .then((thoughtData) => {
+        if (!thoughtData) {
           res
             .status(404)
             .json({ message: "This ID is not assoicated to any thoughts." });
           return;
         }
-        res.json(dbThoughtData);
+        res.json(thoughtData);
       })
       .catch((err) => res.status(400).json(err));
   },
@@ -132,16 +102,16 @@ const thoughtController = {
   //delete a reaction
   deleteReaction({ params }, res) {
     Thought.findByIdAndUpdate(
-      { _id: params.thoughtID },
-      { $pull: { reactions: { reactionID: params.reactionID } } },
-      { new: true }
+      { _id: params.thoughtId },
+      { $pull: { reactions: { reactionId: params.reactionId } } },
+      { new: true, runValidators: true }
     )
-      .then((dbThoughtData) => {
-        if (!dbThoughtData) {
+      .then((thoughtData) => {
+        if (!thoughtData) {
           res.status(404).json({ message: "Unable to delete." });
           return;
         }
-        res.json(dbThoughtData);
+        res.json(thoughtData);
       })
       .catch((err) => res.json(err));
   },

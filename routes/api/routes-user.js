@@ -12,38 +12,21 @@ const {
 
 
 //GET all users
-router
-.route('/')
-.get(getAllUsers);
-
-//GET single user by _id and thought & friend data
-router
-.route('/:id')
-.get(getUserByID);
-
-//POST a new user
-router
-.route('/')
+router.route('/')
+.get(getAllUsers)
 .post(createNewUser);
 
-//PUT to update user by _id
-router
-.route('/:id')
-.put(updateUser);
-
-//DELETE to remove user by _id
-router
-.route('/:id')
+//GET single user by _id and thought & friend data
+router.route('/:id')
+.get(getUserByID)
+.put(updateUser)
 .delete(deleteUser);
 
-//POST to add new friend
-router
-.route('/:userID/friends/:friendID')
-.post(addFriend);
 
-//DELETE to remove a friend
-router
-.route('/:userID/friends/:friendID')
+//POST to add new friend
+router.route('/:id/friends/:friendId')
+.post(addFriend)
 .delete(deleteFriend);
+
 
 module.exports = router;
